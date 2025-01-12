@@ -32,19 +32,16 @@ import math
 class Manager(Agent):
     def __init__(self, aid, workers, parts, products, clients):
         super(Manager, self).__init__(aid=aid, debug=False)
+
         self.workers = workers
         self.parts = parts
         self.products = products
         self.clients = clients
 
-        self.prod_num = 0
-        self.part_num = 0
-        self.work_num = 0
-        self.mach_num = 0
-
         # Список для хранения порядка обрабатываемой информации
         self.time_data = []
         self.all_num = 0
+
 
     def on_start(self):
         super(Manager, self).on_start()
@@ -53,7 +50,6 @@ class Manager(Agent):
         self.clear_output()
 
         call_later(10.0, self.sending_message)
-
 
 
     def sending_message(self):
@@ -73,7 +69,6 @@ class Manager(Agent):
             self.send(message)
 
 
-
     def react(self, message):
         super(Manager, self).react(message)
         # CRINGE ALERT ALERT!!! получает информацию от продукта
@@ -88,10 +83,6 @@ class Manager(Agent):
             full_time = float(msg_cont[7])
             wait_time = float(msg_cont[8])
 
-            # надо бы удалить, но пусть пока будет
-            with open('workers.txt', 'a') as f:
-                f.write(str(self.work_num) + ' ' + str(message.datetime) + ' ' + f'{worker_name} Начал собирать продукт {product_name} для клиента {client_name}. Счет {score}. {full_time - busy_old}:{full_time - busy_new}' + '\n')
-
             # сохраняем инфу о рабочем ОТ ПРОДУКТА
             time = int(str(message.datetime.second) + str(message.datetime.microsecond).zfill(6))
             self.time_data.append({'time': time,
@@ -104,7 +95,6 @@ class Manager(Agent):
                                   'full_time': full_time,
                                    'wait_time': wait_time})
 
-            self.work_num += 1
             self.all_num += 1
 
             # Проверка - если собрал 12 продуктов (т.е. все) - то начинает запись в файл (всю инфу мы уже собрали)
@@ -131,7 +121,7 @@ class Manager(Agent):
                         # если собирал часть - пишем ее, если не собирал - не пишем ее
                         if part is None:
                             f.write(
-                                f'{time} {worker_name} Начал собирать продукт {product_name} для клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}\n')
+                                f'{time} {worker_name} Начал собирать продукт {product_name} ДЛЯ клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}\n')
                         else:
                             f.write(f'{time} {worker_name} Начал собирать деталь {part} ДЛЯ продукта {product_name} для клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}\n')
 
@@ -148,10 +138,6 @@ class Manager(Agent):
             full_time = float(msg_cont[8])
             wait_time = float(msg_cont[9])
 
-            # надо бы удалить, но пусть будет
-            with open('workers.txt', 'a') as f:
-                f.write(str(self.work_num) + ' ' + str(message.datetime) + ' ' + f'{worker_name} Начал собирать деталь {part_name} для продукта {product_name} для клиента {client_name}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}' + '\n')
-
             # сохраняем инфу о рабочем ОТ ЧАСТИ
             time = int(str(message.datetime.second) + str(message.datetime.microsecond).zfill(6))
             self.time_data.append({'time': time,
@@ -163,43 +149,9 @@ class Manager(Agent):
                                    'busy_new':busy_new,
                                    'full_time': full_time,
                                    'wait_time': wait_time})
-            self.work_num += 1
-
-        # Запись в календарь (файл)
-        if 'worker' in message.sender.name and message.performative == 'inform-if':
-            with open('workers.txt', 'a') as f:
-                f.write(str(self.work_num) + ' ' + str(message.datetime) + ' ' + message.content + '\n')
-            self.work_num += 1
-
-        if 'worker' in message.sender.name and message.performative == 'inform-iff':
-            with open('workers.txt', 'a') as f:
-                f.write(str(self.work_num) + ' ' + str(message.datetime) + ' ' + message.content + '\n')
-            self.work_num += 1
-
-        if 'product' in message.sender.name and message.performative == 'inform-if':
-            with open('products.txt', 'a') as f:
-                f.write(str(self.prod_num) + ' ' + str(message.datetime) + ' ' + message.content + '\n')
-            self.prod_num += 1
-
-        if 'part' in message.sender.name and message.performative == 'inform-if':
-            with open('parts.txt', 'a') as f:
-                f.write(str(self.part_num) + ' ' + str(message.datetime) + ' ' + message.content + '\n')
-            self.part_num += 1
 
 
     def clear_output(self):
-        # Отчищаем содержимое файла перед запуском всех приколов
-        with open('products.txt', 'w'):
-            pass
-
-        # Отчищаем содержимое файла перед запуском всех приколов
-        with open('parts.txt', 'w'):
-            pass
-
-        # Отчищаем содержимое файла перед запуском всех приколов
-        with open('workers.txt', 'w'):
-            pass
-
         # Отчищаем содержимое файла перед запуском всех приколов
         with open('new_workers.txt', 'w'):
             pass

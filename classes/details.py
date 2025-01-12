@@ -53,11 +53,7 @@ class Product(Agent):
             msg_cont = message.content.split()
             if msg_cont[0] == self.name:
                 display_message(self.aid.localname, f'Я именно тот продукт {msg_cont[0]} для {msg_cont[1]}')
-                self.send_to_calendar()
-
-
                 self.sending_to_parts(msg_cont[1])
-
 
 
         # CRINGE ALERT ALERT!!! Вычисляет score для всех рабочих ДЛЯ ПРОДУКТА
@@ -67,11 +63,9 @@ class Product(Agent):
                 for worker in self.workers:
                     worker['score'] = (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
 
-
                 best = max(self.workers, key=lambda x: x['score'])
                 busy_old = best['busy']
                 best['busy'] = round(best['busy'] - self.time, 1)
-
                 name = best['name']
                 score = round(best['score'], 6)
                 busy_new = best['busy']
@@ -81,12 +75,6 @@ class Product(Agent):
                 print(f'{name} Начал собирать продукт {self.name} для клиента {message.content}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
                 self.send_to_manager_accepted(name, message.content, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
                 self.count = 0
-
-        # Сохраняет ответ (score) рабочего (это не CRINGE ALERT, старое)
-        if 'worker' in message.sender.localname and message.performative == 'proxy':
-            for i in range(len(self.workers)):
-                if str(self.workers[i]['num']) == message.sender.localname[6:]:
-                    self.workers[i]['score'] = float(message.content)
 
 
     # Отправляет запрос всем агентам-частям, чтобы найти те, которое соответсвуют частям продукта
@@ -98,26 +86,16 @@ class Product(Agent):
             message.set_performative('query-if')
             message.set_sender(self.aid)
             message.receivers = []
+
             for i in self.full_parts:
                 pd_res = 'part' + str(i['num'])
                 message.add_receiver(AID(pd_res))
+
             pd_cont = product_part + ' ' + self.name + ' ' + client
             message.set_content(pd_cont)
             self.send(message)
-
             display_message(self.aid.localname,
                             f'Продукт {self.name} отправил сообщение {message.content} всем деталям')
-
-
-    # Отправляет информацию в календарь (очередь продуктов)
-    def send_to_calendar(self):
-        message = ACLMessage(ACLMessage.INFORM)
-        message.set_performative('inform-if')
-        message.set_sender(self.aid)
-        message.add_receiver('manager')
-        message.set_datetime_now()
-        message.set_content(self.name)
-        self.send(message)
 
 
     # CRINGE ALERT ALERT!!! Отправляет информацию в календарь (рабочий собрал продукт)

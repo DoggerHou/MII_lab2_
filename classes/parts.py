@@ -57,11 +57,9 @@ for i in my_list:
     if i not in my_path:
         sys.path.append(os.path.abspath(i))
 
-from pade.misc.utility import display_message, start_loop, call_later, defer_to_thread, call_in_thread, call_from_thread
+from pade.misc.utility import display_message
 from pade.core.agent import Agent
 from pade.acl.messages import ACLMessage
-from pade.acl.aid import AID
-from twisted.internet import protocol, reactor
 import random
 
 
@@ -73,12 +71,7 @@ class Part(Agent):
         self.equipment = equipment
         self.workers = workerrr
 
-        # Чтобы отловить баг, если сообщение от рабочего не обработалось вовремя
-        for ii in range(len(self.workers)):
-            self.workers[ii]['score'] = -99999999
-
         self.count = 0
-
         self.coef_dict = {'High': 1, 'Medium': 0.8, 'Low': 0.5}
 
 
@@ -94,9 +87,6 @@ class Part(Agent):
             if msg_cont[0] == self.name:
                 display_message(self.aid.localname, f'Я именно та деталь {msg_cont[0]} для {msg_cont[1]}')
 
-                # отправляем сообщение календарю (список частей) (надо бы удалить)
-                self.send_to_calendar(msg_cont[1])
-
                 # Вычисляет score для всех рабочих ДЛЯ ЧАСТИ
                 self.cringe(msg_cont[1], msg_cont[2], message.sender.name)
 
@@ -104,26 +94,25 @@ class Part(Agent):
     # CRINGE ALERT ALERT!!! Вычисляет score для всех рабочих ДЛЯ ЧАСТИ
     def cringe(self, product, client, product_aid):
         for worker in self.workers:
-            return_num = 0
+            score = 0
             flag = 0
             for ii in self.equipment:
                 if ii in worker['machines']:
                     flag = 1
 
             if flag == 0:
-                return_num = -2
+                score = -2
             else:
                 if random.random() < worker['probability']:
                     print(f'СЛУЧАЙНОСТЬ!!! РАБОЧИЙ ВЫКИНУТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    return_num = 0
+                    score = -10
                 else:
-                    return_num += (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
-            worker['score'] = return_num
+                    score += (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
+            worker['score'] = score
 
         best = max(self.workers, key=lambda x: x['score'])
         busy_old = best['busy']
         best['busy'] = round(best['busy'] - self.time, 1)
-
         name = best['name']
         score = best['score']
         busy_new = best['busy']
@@ -133,13 +122,13 @@ class Part(Agent):
         print(
             f'{name} Начал собирать деталь {self.name} для продукта {product} для клиента {client}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
         # сохраняем инфу (score и тд) В МЕНЕДЖЕРЕ!!!
-        self.send_to_product_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
+        self.send_to_calendar_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
         # сообщаем продукту, что одна часть обработана
         self.send_to_product_new_part(product_aid, client)
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение в календарь (менеджеру) о том, что рабочий начал изготавливать деталь
-    def send_to_product_accepted(self, name, part, prod, client, score, busy_old, busy_new, full_time, wait_time):
+    def send_to_calendar_accepted(self, name, part, prod, client, score, busy_old, busy_new, full_time, wait_time):
         message = ACLMessage(ACLMessage.INFORM)
         message.set_performative('inform-iff')
         message.set_sender(self.aid)
@@ -157,16 +146,4 @@ class Part(Agent):
         message.add_receiver(product)
         message.set_datetime_now()
         message.set_content(f'{client_name}')
-        self.send(message)
-
-
-
-    # Отправляет информацию менеджеру для внесения в календарь, что часть начала обработку (надо бы удалить)
-    def send_to_calendar(self, product):
-        message = ACLMessage(ACLMessage.INFORM)
-        message.set_performative('inform-if')
-        message.set_sender(self.aid)
-        message.add_receiver('manager')
-        message.set_datetime_now()
-        message.set_content(self.name + ' для ' + product)
         self.send(message)

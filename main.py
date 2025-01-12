@@ -43,8 +43,6 @@ if __name__ == '__main__':
         workers[i]['wait_time'] = 0
         workers[i]['full_time'] = workers[i]['busy']
 
-
-
     part_list = []
 
     for num, i in enumerate(workers):
@@ -68,7 +66,6 @@ if __name__ == '__main__':
         port += 1
 
     agent = Manager(AID(name=f'manager{port}@localhost:{port}'), workers, parts, details, clients)
-
     agents.append(agent)
 
     start_loop(agents)
