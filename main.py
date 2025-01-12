@@ -17,7 +17,6 @@ from classes.worker import Worker
 from classes.parts import Part
 
 
-
 if __name__ == '__main__':
     agents = list()
     #port = int(sys.argv[1])
@@ -36,6 +35,7 @@ if __name__ == '__main__':
     for i in range(len(workers)):
         workers[i]['wait_time'] = 0
         workers[i]['full_time'] = workers[i]['busy']
+        workers[i]['inters'] = []
 
     part_list = []
 

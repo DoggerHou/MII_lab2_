@@ -113,9 +113,9 @@ class Manager(Agent):
                         # если собирал часть - пишем ее, если не собирал - не пишем ее
                         if part is None:
                             f.write(
-                                f'{time} {worker_name} Начал собирать продукт {product_name} ДЛЯ клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}\n')
+                                f'{time} {worker_name} Начал собирать продукт {product_name} ДЛЯ клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}. {busy_new}\n')
                         else:
-                            f.write(f'{time} {worker_name} Начал собирать деталь {part} ДЛЯ продукта {product_name} для клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}\n')
+                            f.write(f'{time} {worker_name} Начал собирать деталь {part} ДЛЯ продукта {product_name} для клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}. {busy_new}\n')
 
         # CRINGE ALERT ALERT!!!
         if 'part' in message.sender.name and message.performative == 'inform-iff':

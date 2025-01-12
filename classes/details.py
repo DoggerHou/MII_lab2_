@@ -62,7 +62,45 @@ class Product(Agent):
                 for worker in self.workers:
                     worker['score'] = (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
 
-                best = max(self.workers, key=lambda x: x['score'])
+                # Вычисляем - может ли рабочий выполнить задачу
+                sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
+                print(self.name)
+                print(sorted_workers, '\n\n\n')
+                for z in range(len(sorted_workers)):
+                    print(0, self.name,sorted_workers[z])
+                    # Если список пустой, или можем впихнуть задачу в начало
+                    if (not sorted_workers[z]['inters']) or (sorted_workers[z]['inters'] and sorted_workers[z]['inters'][0][0] >= self.time):
+                        t_old = 0
+                        t_new = self.time
+                        sorted_workers[z]['inters'] = [(t_old, t_new)] + sorted_workers[z]['inters']
+                        best = sorted_workers[z]
+                        print(1, best)
+                        break
+                    # иначе - смотрим, между какими интервалами задачу выполнить можно
+                    else:
+                        print(2)
+                        # если в начало нельзя - смотрим между интервалами, например - (3-4)
+                        for i in range(len(sorted_workers[z]['inters']) - 1):
+                            if sorted_workers[z]['inters'][i + 1][0] - sorted_workers[z]['inters'][i][1] >= self.time:
+                                t_old = sorted_workers[z]['inters'][i][1]
+                                t_new = t_old + self.time
+                                sorted_workers[z]['inters'].insert(i+1, (t_old, t_new))
+                                best = sorted_workers[z]
+                                print(2, best)
+                                break
+                        else:
+                            # full_busy - сколько часов работает рабочий в целом
+                            # Если не нашли промежутков в интервалах, куда можно впихнуть работу - смотрим
+                            # хватает ли у рабочего "рабочего времени", чтобы впихнуть работу в конец, например - (10-11)
+                            if sum(b - a for a,b in sorted_workers[z]['inters']) + self.time >= sorted_workers[z]['busy']:
+                                t_old = sorted_workers[z]['inters'][-1][1]
+                                t_new = t_old + self.time
+                                sorted_workers[z]['inters'].append((t_old, t_new))
+                                best = sorted_workers[z]
+                                print(3, best)
+
+
+                #best = max(self.workers, key=lambda x: x['score'])
                 busy_old = best['busy']
                 best['busy'] = round(best['busy'] - self.time, 1)
                 name = best['name']

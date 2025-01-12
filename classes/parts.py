@@ -106,10 +106,11 @@ class Part(Agent):
             else:
                 if random.random() < worker['probability']:
                     print(f'СЛУЧАЙНОСТЬ!!! РАБОЧИЙ ВЫКИНУТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    score = -10
+                    score = -100
                 else:
                     score += (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
             worker['score'] = score
+
 
         best = max(self.workers, key=lambda x: x['score'])
         busy_old = best['busy']
