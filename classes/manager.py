@@ -15,18 +15,10 @@ for i in my_list:
     if i not in my_path:
         sys.path.append(os.path.abspath(i))
 
-
-
 from pade.misc.utility import display_message, start_loop, call_later
 from pade.core.agent import Agent
 from pade.acl.messages import ACLMessage
 from pade.acl.aid import AID
-from worker import Worker
-from machines import Machine
-from parts import Part
-from details import Product
-import json
-import math
 
 
 class Manager(Agent):

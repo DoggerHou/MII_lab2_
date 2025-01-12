@@ -52,6 +52,7 @@ my_list = ['C:\\PythonProject2\\.venv\\Scripts\\pade.exe',
            'C:\\Users\\mrsli\\AppData\\Local\\Programs\\Python\\Python38',
            'C:\\Users\\mrsli\\AppData\\Local\\Programs\\Python\\Python38\\lib\\site-packages',
            'C:\\PythonProject2\\classes', 'C:\\PythonProject2\\files']
+
 my_path = sys.path
 for i in my_list:
     if i not in my_path:
