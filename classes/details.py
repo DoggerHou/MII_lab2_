@@ -56,6 +56,8 @@ class Product(Agent):
         # CRINGE ALERT ALERT!!! Вычисляет score для всех рабочих ДЛЯ ПРОДУКТА
         if 'part' in message.sender.name and message.performative == 'inform-if':
             self.count += 1
+
+            # если собраны все части продукта
             if self.count == len(self.parts):
                 for worker in self.workers:
                     worker['score'] = (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])

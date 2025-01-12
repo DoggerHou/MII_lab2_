@@ -123,13 +123,13 @@ class Part(Agent):
         print(
             f'{name} Начал собирать деталь {self.name} для продукта {product} для клиента {client}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
         # сохраняем инфу (score и тд) В МЕНЕДЖЕРЕ!!!
-        self.send_to_calendar_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
+        self.send_to_manager_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
         # сообщаем продукту, что одна часть обработана
-        self.send_to_product_new_part(product_aid, client)
+        self.send_to_product_accepted(product_aid, client)
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение в календарь (менеджеру) о том, что рабочий начал изготавливать деталь
-    def send_to_calendar_accepted(self, name, part, prod, client, score, busy_old, busy_new, full_time, wait_time):
+    def send_to_manager_accepted(self, name, part, prod, client, score, busy_old, busy_new, full_time, wait_time):
         message = ACLMessage(ACLMessage.INFORM)
         message.set_performative('inform-iff')
         message.set_sender(self.aid)
@@ -140,7 +140,7 @@ class Part(Agent):
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение продукту о том, что часть собрана
-    def send_to_product_new_part(self, product, client_name):
+    def send_to_product_accepted(self, product, client_name):
         message = ACLMessage(ACLMessage.INFORM)
         message.set_performative('inform-if')
         message.set_sender(self.aid)
