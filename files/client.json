@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Клиент1",
+    "order": "Стул",
+    "deadline": 2
+  },
+  {
+    "name": "Клиент2",
+    "order": "Стул",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент3",
+    "order": "Стеллаж",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент4",
+    "order": "Стеллаж",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент5",
+    "order": "Кровать",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент6",
+    "order": "Тумба",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент7",
+    "order": "Шкаф",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент8",
+    "order": "Стол",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент9",
+    "order": "Табурет",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент10",
+    "order": "Табурет",
+    "deadline": 3
+  },
+  {
+    "name": "Клиент11",
+    "order": "Стол",
+    "deadline": 1
+  },
+  {
+    "name": "Клиент12",
+    "order": "Обувница",
+    "deadline": 5
+  }
+]

@@ -1,0 +1,292 @@
+{
+    "worker": [
+        {
+            "name": "Анисимов А.Ф.",
+            "qualification": "Medium",
+            "busy": 0.5,
+            "machines": ["A1","A3"],
+            "probability": 0.1
+        },
+        {
+            "name": "Петров А.В.",
+            "qualification": "Low",
+            "busy": 0.3,
+            "machines": ["A1"],
+            "probability": 0.04
+        },
+        {
+            "name": "Медведева М.И.",
+            "qualification": "High",
+            "busy": 0.5,
+            "machines": ["A1","A2","A5"],
+            "probability": 0.02
+        },
+        {
+            "name": "Сидоров М.И.",
+            "qualification": "Medium",
+            "busy": 25,
+            "machines": ["A1","A2","A4"],
+            "probability": 0.05
+        },
+        {
+            "name": "Баранов М.И.",
+            "qualification": "Low",
+            "busy": 11,
+            "machines": ["A5"],
+            "probability": 0.05
+        },
+        {
+            "name": "Молчанова А.В.",
+            "qualification": "Low",
+            "busy": 28,
+            "machines": ["A4"],
+            "probability": 0.03
+        },
+        {
+            "name": "Морозов Г.П.",
+            "qualification": "High",
+            "busy": 16,
+            "machines": ["A3"],
+            "probability": 0.06
+        },
+        {
+            "name": "Титова С.А.",
+            "qualification": "High",
+            "busy": 17,
+            "machines": ["A2"],
+            "probability": 0.05
+        },
+        {
+            "name": "Спиридонов К.Д.",
+            "qualification": "Medium",
+            "busy": 31,
+            "machines": ["A1"],
+            "probability": 0.04
+        },
+        {
+            "name": "Тимофеев М.Д.",
+            "qualification": "Medium",
+            "busy": 14,
+            "machines": ["A3","A4","A5"],
+            "probability": 0.01
+        },
+        {
+            "name": "Иванов М.А.",
+            "qualification": "Low",
+            "busy": 16,
+            "machines": ["A1","A2","A3"],
+            "probability": 0.11
+        },
+        {
+            "name": "Данилов Г.Т.",
+            "qualification": "Medium",
+            "busy": 20,
+            "machines": ["A4","A5"],
+            "probability": 0.31
+        },
+        {
+            "name": "Овечкин У.К.",
+            "qualification": "Medium",
+            "busy": 21,
+            "machines": ["A6"],
+            "probability": 0.06
+        },
+        {
+            "name": "Карамов В.И.",
+            "qualification": "Medium",
+            "busy": 25,
+            "machines": ["A1","A6"],
+            "probability": 0.21
+        },
+        {
+            "name": "Тимофеев Е.В.",
+            "qualification": "Low",
+            "busy": 11,
+            "machines": ["A2","A5"],
+            "probability": 0.05
+        },
+        {
+            "name": "Кольцов А.А.",
+            "qualification": "High",
+            "busy": 14,
+            "machines": ["A1","A3"],
+            "probability": 0.15
+        },
+        {
+            "name": "Кирсанова Е.П.",
+            "qualification": "Low",
+            "busy": 6,
+            "machines": ["A2","A3"],
+            "probability": 0.04
+        },
+        {
+            "name": "Ёжиков И.Т.",
+            "qualification": "Low",
+            "busy": 23,
+            "machines": ["A1","A4"],
+            "probability": 0.04
+        },
+        {
+            "name": "Непонятова И.Г.",
+            "qualification": "Low",
+            "busy": 40,
+            "machines": ["A3","A4"],
+            "probability": 0.11
+        },
+        {
+            "name": "Лучесветова Н.П.",
+            "qualification": "Low",
+            "busy": 12,
+            "machines": ["A4","A6"],
+            "probability": 0.12
+        },
+        {
+            "name": "Немыш Р.К.",
+            "qualification": "Low",
+            "busy": 16,
+            "machines": ["A3","A5"],
+            "probability": 0.3
+        },
+        {
+            "name": "Косенок О.Л.",
+            "qualification": "Low",
+            "busy": 20,
+            "machines": ["A1"],
+            "probability": 0.05
+        },
+        {
+            "name": "Куб Л.Э.",
+            "qualification": "Low",
+            "busy": 4,
+            "machines": ["A1","A5"],
+            "probability": 0.01
+        },
+        {
+            "name": "Фурьен П.В.",
+            "qualification": "Low",
+            "busy": 17,
+            "machines": ["A3","A4"],
+            "probability": 0.2
+        },
+        {
+            "name": "Махерин Ш.Ю.",
+            "qualification": "Low",
+            "busy": 9,
+            "machines": ["A1","A2"],
+            "probability": 0.09
+        },
+        {
+            "name": "Элвс И.Р.",
+            "qualification": "Low",
+            "busy": 22,
+            "machines": ["A2","A6"],
+            "probability": 0.06
+        }
+        
+    ],
+
+    "part": [
+        {
+            "name": "Ножка",
+            "time": 0.5,
+            "equipment": ["A1"]
+
+        },
+        {
+            "name": "Столешница",
+            "time": 1,
+            "equipment": ["A2","A3"]
+        },
+        {
+            "name": "Сидушка",
+            "time": 0.5,
+            "equipment": ["A3"]
+        },
+        {
+            "name": "Спинка",
+            "time": 1,
+            "equipment": ["A7"]
+        },
+        {
+            "name": "Основание",
+            "time": 2,
+            "equipment": ["A5"]
+        },
+        {
+            "name": "Ящик",
+            "time": 2,
+            "equipment": ["A6"]
+        },
+        {
+            "name": "Полка",
+            "time": 0.5,
+            "equipment": ["A1","A2","A3"]
+        },
+        {
+            "name": "Дверца",
+            "time": 1.5,
+            "equipment": ["A1","A2","A3", "A6"]
+        }
+    ],
+
+
+    "detail": [
+        {
+            "name": "Стол",
+            "time": 0.5,
+            "parts": [
+                "Ножка", "Ножка", "Ножка", "Ножка", "Столешница"
+            ]
+
+        },
+        {
+            "name": "Стул",
+            "time": 0.6,
+            "parts": [
+                "Ножка", "Ножка", "Ножка", "Ножка", "Сидушка", "Спинка"
+            ]
+        },
+        {
+            "name": "Кровать",
+            "time": 1.1,
+            "parts": [
+                "Спинка", "Основание"
+            ]
+        },
+        {
+            "name": "Тумба",
+            "time": 0.9,
+            "parts": [
+                "Основание", "Ящик", "Полка"
+            ]
+        },
+        {
+            "name": "Стеллаж",
+            "time": 1.0,
+            "parts": [
+                "Основание", "Полка", "Полка", "Полка", "Полка"
+            ]
+        },
+        {
+            "name": "Табурет",
+            "time": 0.3,
+            "parts": [
+                "Ножка", "Ножка", "Ножка", "Ножка", "Сидушка"
+            ]
+        },
+        {
+            "name": "Обувница",
+            "time": 2.2,
+            "parts": [
+                "Основание", "Сидушка", "Полка", "Полка"
+            ]
+        },
+        {
+            "name": "Шкаф",
+            "time": 1.2,
+            "parts": [
+                "Основание", "Дверца", "Дверца", "Полка", "Полка"
+            ]
+        }
+    ]
+}
