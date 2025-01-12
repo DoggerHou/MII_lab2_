@@ -90,8 +90,43 @@ class Manager(Agent):
             self.all_num += 1
 
             # Проверка - если собрал 12 продуктов (т.е. все) - то начинает запись в файл (всю инфу мы уже собрали)
-            if self.all_num == 12:
+            if self.all_num == len(self.clients):
                 new_time = sorted(self.time_data, key=lambda x: x['time'])
+
+                # КРАСИВАЯ (ТАБЛИЧНАЯ ЗАПИСЬ В ФАЙЛ)
+                # Группируем данные по клиентам
+                client_data = {}
+                for entry in new_time:
+                    client_name = entry["client"]
+                    if client_name not in client_data:
+                        client_data[client_name] = []
+                    client_data[client_name].append(entry)
+
+                with open('worker2.txt', 'w', encoding='utf-8') as f:
+                    for client in client_data:
+                        f.write(f"\nДанные для {client}:\n")
+                        f.write(
+                            f"{'Время':<10} {'Работник':<20} {'Действие':<30} {'Деталь':<15} {'Продукт':<15} {'Время':<10} {'Занятость':<10}\n")
+
+                        for entry in client_data[client]:
+                            time = entry["time"]
+                            worker_name = entry["worker"]
+                            action = 'Собрал деталь' if entry['part'] else 'Собрал продукт'
+                            part = entry["part"] if entry["part"] else ""
+                            product_name = entry["product"]
+
+                            # Нужно, чтобы вывести время рабочего в красивом формате
+                            h_old = int(entry['full_time'] - entry['busy_old'] )
+                            h_new = int(entry['full_time'] - entry['busy_new'])
+                            m_old = str(int((entry['full_time'] - entry['busy_old'] - h_old) * 60)).zfill(2)
+                            m_new = str(int((entry['full_time'] - entry['busy_new'] - h_new) * 60)).zfill(2)
+
+                            busy_new = entry["busy_new"]
+
+                            f.write(
+                                f"{time:<10} {worker_name:<20} {action:<30} {part:<15} {product_name:<15} {h_old}:{m_old}-{h_new}:{m_new:<10} {busy_new:<10}\n")
+
+
                 with open('new_workers.txt', 'a') as f:
                     for w in new_time:
                         full_time = w['full_time']  # сколько может работать рабочий ВСЕГО

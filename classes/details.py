@@ -34,6 +34,8 @@ class Product(Agent):
         # для удобных расчетов с рабочими
         self.coef_dict = {'High': 1, 'Medium': 0.8, 'Low': 0.5}
         self.count = 0
+        self.wait = 0
+
 
 
     def on_start(self):
@@ -55,49 +57,76 @@ class Product(Agent):
 
         # CRINGE ALERT ALERT!!! Вычисляет score для всех рабочих ДЛЯ ПРОДУКТА
         if 'part' in message.sender.name and message.performative == 'inform-if':
+            # деталь собрана, добавляем +1 в счетчик
             self.count += 1
+            #сохрняем инфу о том, для какого клиента продукт + время конца сборки последней детали
+            msg_cont = message.content.split()
+            client_name = msg_cont[0]
+            last_time = msg_cont[1]
 
             # если собраны все части продукта
             if self.count == len(self.parts):
+                self.wait = float(last_time)
+                print(f'ЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ {self.name} {client_name} {self.wait} ЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ')
+
+
                 for worker in self.workers:
                     worker['score'] = (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
 
-                # Вычисляем - может ли рабочий выполнить задачу
                 sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
                 print(self.name)
                 print(sorted_workers, '\n\n\n')
+
                 for z in range(len(sorted_workers)):
-                    print(0, self.name,sorted_workers[z])
+
+                    worker = sorted_workers[z]  # получаем рабочего из отсортированного списка
+                    original_index = self.workers.index(worker)  # ищем индекс рабочего в оригинальном списке
+                    print('sorted', worker)
+                    print('orig', self.workers[original_index])
+                    found = False  # Флаг для отслеживания, найден ли подходящий интервал
+
                     # Если список пустой, или можем впихнуть задачу в начало
-                    if (not sorted_workers[z]['inters']) or (sorted_workers[z]['inters'] and sorted_workers[z]['inters'][0][0] >= self.time):
+                    if ((not worker['inters']) or (worker['inters'] and worker['inters'][0][0] >= self.time)) and self.wait <= 0:
                         t_old = 0
                         t_new = self.time
-                        sorted_workers[z]['inters'] = [(t_old, t_new)] + sorted_workers[z]['inters']
-                        best = sorted_workers[z]
-                        print(1, best)
-                        break
+                        worker['inters'] = [(t_old, t_new)] + worker['inters']
+                        self.workers[original_index]['inters'] = worker['inters']  # обновляем оригинальный список
+                        best = worker
+                        print(0, best)
+                        found = True  # Установим флаг в True
+
                     # иначе - смотрим, между какими интервалами задачу выполнить можно
                     else:
-                        print(2)
                         # если в начало нельзя - смотрим между интервалами, например - (3-4)
-                        for i in range(len(sorted_workers[z]['inters']) - 1):
-                            if sorted_workers[z]['inters'][i + 1][0] - sorted_workers[z]['inters'][i][1] >= self.time:
-                                t_old = sorted_workers[z]['inters'][i][1]
+                        print(1)
+                        for i in range(len(worker['inters']) - 1):
+                            print(worker['inters'][i + 1][0] - worker['inters'][i][1], self.time)
+                            if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time and worker['inters'][i][1] > self.wait:
+                                t_old = worker['inters'][i][1]
                                 t_new = t_old + self.time
-                                sorted_workers[z]['inters'].insert(i+1, (t_old, t_new))
-                                best = sorted_workers[z]
-                                print(2, best)
+                                worker['inters'].insert(i + 1, (t_old, t_new))
+                                self.workers[original_index]['inters'] = worker[
+                                    'inters']  # обновляем оригинальный список
+                                best = worker
+                                print(1, best)
+                                found = True  # Установим флаг в True
                                 break
                         else:
                             # full_busy - сколько часов работает рабочий в целом
                             # Если не нашли промежутков в интервалах, куда можно впихнуть работу - смотрим
                             # хватает ли у рабочего "рабочего времени", чтобы впихнуть работу в конец, например - (10-11)
-                            if sum(b - a for a,b in sorted_workers[z]['inters']) + self.time >= sorted_workers[z]['busy']:
-                                t_old = sorted_workers[z]['inters'][-1][1]
+                            if sum(b - a for a, b in worker['inters']) + self.time <= worker['busy']:
+                                #t_old = worker['inters'][-1][1]
+                                t_old = self.wait
                                 t_new = t_old + self.time
-                                sorted_workers[z]['inters'].append((t_old, t_new))
-                                best = sorted_workers[z]
-                                print(3, best)
+                                worker['inters'].append((t_old, t_new))
+                                self.workers[original_index]['inters'] = worker[
+                                    'inters']  # обновляем оригинальный список
+                                best = worker
+                                print(2, best)
+                                found = True  # Установим флаг в True
+                    if found:
+                        break
 
 
                 #best = max(self.workers, key=lambda x: x['score'])
@@ -109,8 +138,8 @@ class Product(Agent):
                 full_time = best['full_time']
                 wait_time = best['wait_time']
 
-                print(f'{name} Начал собирать продукт {self.name} для клиента {message.content}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
-                self.send_to_manager_accepted(name, message.content, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
+                print(f'{name} Начал собирать продукт {self.name} для клиента {client_name}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
+                self.send_to_manager_accepted(name, client_name, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
                 self.count = 0
 
 

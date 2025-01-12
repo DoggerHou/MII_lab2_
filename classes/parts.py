@@ -111,8 +111,61 @@ class Part(Agent):
                     score += (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
             worker['score'] = score
 
+        sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
+        print(self.name)
+        print(sorted_workers, '\n\n\n')
 
-        best = max(self.workers, key=lambda x: x['score'])
+        for z in range(len(sorted_workers)):
+
+            worker = sorted_workers[z]  # получаем рабочего из отсортированного списка
+            original_index = self.workers.index(worker)  # ищем индекс рабочего в оригинальном списке
+            print('sorted', worker)
+            print('orig', self.workers[original_index])
+            found = False  # Флаг для отслеживания, найден ли подходящий интервал
+
+            # Если список пустой, или можем впихнуть задачу в начало
+            if (not worker['inters']) or (worker['inters'] and worker['inters'][0][0] >= self.time):
+                t_old = 0
+                t_new = self.time
+                worker['inters'] = [(t_old, t_new)] + worker['inters']
+                self.workers[original_index]['inters'] = worker['inters']  # обновляем оригинальный список
+                best = worker
+                print(0, best)
+                found = True  # Установим флаг в True
+
+            # иначе - смотрим, между какими интервалами задачу выполнить можно
+            else:
+                # если в начало нельзя - смотрим между интервалами, например - (3-4)
+                print(1)
+                for i in range(len(worker['inters']) - 1):
+                    print(worker['inters'][i + 1][0] - worker['inters'][i][1], self.time)
+                    if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time:
+                        t_old = worker['inters'][i][1]
+                        t_new = t_old + self.time
+                        worker['inters'].insert(i + 1, (t_old, t_new))
+                        self.workers[original_index]['inters'] = worker[
+                            'inters']  # обновляем оригинальный список
+                        best = worker
+                        print(1, best)
+                        found = True  # Установим флаг в True
+                        break
+                else:
+                    # full_busy - сколько часов работает рабочий в целом
+                    # Если не нашли промежутков в интервалах, куда можно впихнуть работу - смотрим
+                    # хватает ли у рабочего "рабочего времени", чтобы впихнуть работу в конец, например - (10-11)
+                    if sum(b - a for a, b in worker['inters']) + self.time <= worker['busy']:
+                        t_old = worker['inters'][-1][1]
+                        t_new = t_old + self.time
+                        worker['inters'].append((t_old, t_new))
+                        self.workers[original_index]['inters'] = worker[
+                            'inters']  # обновляем оригинальный список
+                        best = worker
+                        print(2, best)
+                        found = True  # Установим флаг в True
+            if found:
+                break
+
+        #best = max(self.workers, key=lambda x: x['score'])
         busy_old = best['busy']
         best['busy'] = round(best['busy'] - self.time, 1)
         name = best['name']
@@ -126,7 +179,7 @@ class Part(Agent):
         # сохраняем инфу (score и тд) В МЕНЕДЖЕРЕ!!!
         self.send_to_manager_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
         # сообщаем продукту, что одна часть обработана
-        self.send_to_product_accepted(product_aid, client)
+        self.send_to_product_accepted(product_aid, client, full_time - busy_new)
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение в календарь (менеджеру) о том, что рабочий начал изготавливать деталь
@@ -141,11 +194,11 @@ class Part(Agent):
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение продукту о том, что часть собрана
-    def send_to_product_accepted(self, product, client_name):
+    def send_to_product_accepted(self, product, client_name, last_time):
         message = ACLMessage(ACLMessage.INFORM)
         message.set_performative('inform-if')
         message.set_sender(self.aid)
         message.add_receiver(product)
         message.set_datetime_now()
-        message.set_content(f'{client_name}')
+        message.set_content(f'{client_name} {str(last_time)}')
         self.send(message)
