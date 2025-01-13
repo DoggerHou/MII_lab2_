@@ -106,7 +106,7 @@ class Manager(Agent):
                     for client in client_data:
                         f.write(f"\nДанные для {client}:\n")
                         f.write(
-                            f"{'Время':<10} {'Работник':<20} {'Действие':<30} {'Деталь':<15} {'Продукт':<15} {'Время':<10} {'Занятость':<10}\n")
+                            f"{'Работник':<20} {'Действие':<30} {'Деталь':<15} {'Продукт':<15} {'Время':<19} {'Занятость':<10}\n")
 
                         for entry in client_data[client]:
                             time = entry["time"]
@@ -116,15 +116,15 @@ class Manager(Agent):
                             product_name = entry["product"]
 
                             # Нужно, чтобы вывести время рабочего в красивом формате
-                            h_old = int(entry['full_time'] - entry['busy_old'] )
-                            h_new = int(entry['full_time'] - entry['busy_new'])
-                            m_old = str(int((entry['full_time'] - entry['busy_old'] - h_old) * 60)).zfill(2)
-                            m_new = str(int((entry['full_time'] - entry['busy_new'] - h_new) * 60)).zfill(2)
+                            h_old = int(entry['busy_old'] )
+                            h_new = int(entry['busy_new'])
+                            m_old = str(int((entry['busy_old'] - h_old) * 60)).zfill(2)
+                            m_new = str(int((entry['busy_new'] - h_new) * 60)).zfill(2)
 
                             busy_new = entry["busy_new"]
 
                             f.write(
-                                f"{time:<10} {worker_name:<20} {action:<30} {part:<15} {product_name:<15} {h_old}:{m_old}-{h_new}:{m_new:<10} {busy_new:<10}\n")
+                                f"{worker_name:<20} {action:<30} {part:<15} {product_name:<15} {str(h_old).zfill(2)}:{m_old}-{str(h_new).zfill(2)}:{m_new:<10} {busy_new:<10}\n")
 
 
                 with open('new_workers.txt', 'a') as f:
@@ -140,17 +140,17 @@ class Manager(Agent):
                         busy_new = w['busy_new']    # новое время рабочего (до начала обработки детали/продукта)
 
                         # Нужно, чтобы вывести время рабочего в красивом формате
-                        h_old = int(full_time - busy_old)
-                        h_new = int(full_time - busy_new)
-                        m_old = str(int((full_time - busy_old - h_old)*60)).zfill(2)
-                        m_new = str(int((full_time - busy_new - h_new) * 60)).zfill(2)
+                        h_old = int(busy_old)
+                        h_new = int(busy_new)
+                        m_old = str(int((busy_old - h_old)*60)).zfill(2)
+                        m_new = str(int((busy_new - h_new) * 60)).zfill(2)
 
                         # если собирал часть - пишем ее, если не собирал - не пишем ее
                         if part is None:
                             f.write(
-                                f'{time} {worker_name} Начал собирать продукт {product_name} ДЛЯ клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}. {busy_new}\n')
+                                f'{worker_name} Начал собирать продукт {product_name} ДЛЯ клиента {client_name}. {str(h_old).zfill(2)}:{m_old}-{str(h_new).zfill(2)}:{m_new}. {busy_new}\n')
                         else:
-                            f.write(f'{time} {worker_name} Начал собирать деталь {part} ДЛЯ продукта {product_name} для клиента {client_name}. {h_old}:{m_old}-{h_new}:{m_new}. {busy_new}\n')
+                            f.write(f'{worker_name} Начал собирать деталь {part} ДЛЯ продукта {product_name} для клиента {client_name}. {str(h_old).zfill(2)}:{m_old}-{str(h_new).zfill(2)}:{m_new}. {busy_new}\n')
 
         # CRINGE ALERT ALERT!!!
         if 'part' in message.sender.name and message.performative == 'inform-iff':

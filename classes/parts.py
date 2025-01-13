@@ -112,6 +112,7 @@ class Part(Agent):
             worker['score'] = score
 
         sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
+        real_inter = ()
         print('\n\n\n\n', self.name)
         print(sorted_workers, '\n')
 
@@ -127,6 +128,10 @@ class Part(Agent):
                 t_old = 0
                 t_new = self.time
                 worker['inters'] = [(t_old, t_new)] + worker['inters']
+
+                # т.к. пихаем в начало - то и интервал берем первый
+                real_inter = (t_old, t_new)
+
                 self.workers[original_index]['inters'] = worker['inters']  # обновляем оригинальный список
                 best = worker
                 print(0, best)
@@ -141,6 +146,10 @@ class Part(Agent):
                     if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time:
                         t_old = worker['inters'][i][1]
                         t_new = t_old + self.time
+
+                        # тут вставляем в середину
+                        real_inter = (t_old, t_new)
+
                         worker['inters'].insert(i + 1, (t_old, t_new))
                         self.workers[original_index]['inters'] = worker[
                             'inters']  # обновляем оригинальный список
@@ -156,6 +165,10 @@ class Part(Agent):
                     if sum(b - a for a, b in worker['inters']) + self.time <= worker['busy']:
                         t_old = worker['inters'][-1][1]
                         t_new = t_old + self.time
+
+                        # тут вставляем в конец
+                        real_inter = (t_old, t_new)
+
                         worker['inters'].append((t_old, t_new))
                         self.workers[original_index]['inters'] = worker[
                             'inters']  # обновляем оригинальный список
@@ -166,20 +179,21 @@ class Part(Agent):
                 break
 
         #best = max(self.workers, key=lambda x: x['score'])
-        busy_old = best['busy']
+
+        # ЭТО МЕНЯЕТСЯ ИМЕННО ДОСТУПНОЕ ВРЕМЯ РАБОТЫ (т.е. сколько всего рабочий еще может проработать)
         best['busy'] = round(best['busy'] - self.time, 1)
+
         name = best['name']
         score = best['score']
-        busy_new = best['busy']
         full_time = best['full_time']
         wait_time = best['wait_time']
 
         print(
-            f'{name} Начал собирать деталь {self.name} для продукта {product} для клиента {client}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
+            f'{name} Начал собирать деталь {self.name} для продукта {product} для клиента {client}. Счет {score}. Время {real_inter[0]}:{real_inter[1]}')
         # сохраняем инфу (score и тд) В МЕНЕДЖЕРЕ!!!
-        self.send_to_manager_accepted(name, self.name, product, client, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
+        self.send_to_manager_accepted(name, self.name, product, client, str(score), str(real_inter[0]), str(real_inter[1]), str(full_time), str(wait_time))
         # сообщаем продукту, что одна часть обработана
-        self.send_to_product_accepted(product_aid, client, full_time - busy_new)
+        self.send_to_product_accepted(product_aid, client, real_inter[1])
 
 
     # CRINGE ALERT ALERT!!! Отправляет сообщение в календарь (менеджеру) о том, что рабочий начал изготавливать деталь

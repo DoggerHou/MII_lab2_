@@ -75,9 +75,10 @@ class Product(Agent):
                     worker['score'] = (self.time / self.coef_dict[worker['qualification']]) + (2.5 / 40 * worker['busy'])
 
                 sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
+                real_inter = ()
                 print(self.name)
                 print(sorted_workers, '\n')
-                real_inter = ()
+
                 for z in range(len(sorted_workers)):
 
                     worker = sorted_workers[z]  # получаем рабочего из отсортированного списка
@@ -90,7 +91,10 @@ class Product(Agent):
                         t_old = 0
                         t_new = self.time
                         worker['inters'] = [(t_old, t_new)] + worker['inters']
-                        real_inter =
+
+                        # т.к. пихаем в начало - то и интервал берем первый
+                        real_inter = [(t_old, t_new)]
+
                         self.workers[original_index]['inters'] = worker['inters']  # обновляем оригинальный список
                         best = worker
                         print(0, best)
@@ -105,6 +109,10 @@ class Product(Agent):
                             if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time and worker['inters'][i][1] > self.wait:
                                 t_old = worker['inters'][i][1]
                                 t_new = t_old + self.time
+
+                                # тут вставляем в середину
+                                real_inter = (t_old, t_new)
+
                                 worker['inters'].insert(i + 1, (t_old, t_new))
                                 self.workers[original_index]['inters'] = worker[
                                     'inters']  # обновляем оригинальный список
@@ -127,6 +135,9 @@ class Product(Agent):
                                     t_old = self.wait
 
                                 t_new = t_old + self.time
+                                # тут вставляем в конец
+                                real_inter = (t_old, t_new)
+
                                 worker['inters'].append((t_old, t_new))
                                 self.workers[original_index]['inters'] = worker[
                                     'inters']  # обновляем оригинальный список
@@ -138,16 +149,16 @@ class Product(Agent):
 
 
                 #best = max(self.workers, key=lambda x: x['score'])
-                busy_old = best['busy']
+                # ЭТО МЕНЯЕТСЯ ИМЕННО ДОСТУПНОЕ ВРЕМЯ РАБОТЫ (т.е. сколько всего рабочий еще может проработать)
                 best['busy'] = round(best['busy'] - self.time, 1)
+
                 name = best['name']
                 score = round(best['score'], 6)
-                busy_new = best['busy']
                 full_time = best['full_time']
                 wait_time = best['wait_time']
 
-                print(f'{name} Начал собирать продукт {self.name} для клиента {client_name}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
-                self.send_to_manager_accepted(name, client_name, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
+                print(f'{name} Начал собирать продукт {self.name} для клиента {client_name}. Счет {score}. Время {real_inter[0]}:{real_inter[1]}')
+                self.send_to_manager_accepted(name, client_name, str(score), str(real_inter[0]), str(real_inter[1]), str(full_time), str(wait_time))
                 self.count = 0
                 self.wait = 0
 
