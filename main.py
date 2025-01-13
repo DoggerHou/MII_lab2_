@@ -30,7 +30,7 @@ if __name__ == '__main__':
     workers = data['worker']
     parts = data['part']
     details = data['detail']
-    clients = sorted(data2, key=lambda x: x['deadline'])[:3]
+    clients = sorted(data2, key=lambda x: x['deadline'])
 
     # Добавляем рабочим необходимые нам поля
     for i in range(len(workers)):

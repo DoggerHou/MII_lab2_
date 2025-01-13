@@ -112,15 +112,14 @@ class Part(Agent):
             worker['score'] = score
 
         sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
-        print(self.name)
-        print(sorted_workers, '\n\n\n')
+        print('\n\n\n\n', self.name)
+        print(sorted_workers, '\n')
 
         for z in range(len(sorted_workers)):
 
             worker = sorted_workers[z]  # получаем рабочего из отсортированного списка
             original_index = self.workers.index(worker)  # ищем индекс рабочего в оригинальном списке
-            print('sorted', worker)
-            print('orig', self.workers[original_index])
+            print(worker)
             found = False  # Флаг для отслеживания, найден ли подходящий интервал
 
             # Если список пустой, или можем впихнуть задачу в начало
@@ -138,7 +137,7 @@ class Part(Agent):
                 # если в начало нельзя - смотрим между интервалами, например - (3-4)
                 print(1)
                 for i in range(len(worker['inters']) - 1):
-                    print(worker['inters'][i + 1][0] - worker['inters'][i][1], self.time)
+                    print(f"время между интервалами {worker['inters'][i + 1][0] - worker['inters'][i][1]} время сборки {self.time}")
                     if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time:
                         t_old = worker['inters'][i][1]
                         t_new = t_old + self.time
@@ -150,6 +149,7 @@ class Part(Agent):
                         found = True  # Установим флаг в True
                         break
                 else:
+                    print(2)
                     # full_busy - сколько часов работает рабочий в целом
                     # Если не нашли промежутков в интервалах, куда можно впихнуть работу - смотрим
                     # хватает ли у рабочего "рабочего времени", чтобы впихнуть работу в конец, например - (10-11)

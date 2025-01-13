@@ -34,7 +34,7 @@ class Product(Agent):
         # для удобных расчетов с рабочими
         self.coef_dict = {'High': 1, 'Medium': 0.8, 'Low': 0.5}
         self.count = 0
-        self.wait = 0
+        self.wait = 0.0
 
 
 
@@ -63,10 +63,11 @@ class Product(Agent):
             msg_cont = message.content.split()
             client_name = msg_cont[0]
             last_time = msg_cont[1]
+            self.wait = max(self.wait, float(last_time))
 
             # если собраны все части продукта
             if self.count == len(self.parts):
-                self.wait = float(last_time)
+                #self.wait = float(last_time)
                 print(f'ЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ {self.name} {client_name} {self.wait} ЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ')
 
 
@@ -75,14 +76,13 @@ class Product(Agent):
 
                 sorted_workers = sorted(self.workers, key=lambda x: x['score'], reverse=True)
                 print(self.name)
-                print(sorted_workers, '\n\n\n')
-
+                print(sorted_workers, '\n')
+                real_inter = ()
                 for z in range(len(sorted_workers)):
 
                     worker = sorted_workers[z]  # получаем рабочего из отсортированного списка
                     original_index = self.workers.index(worker)  # ищем индекс рабочего в оригинальном списке
-                    print('sorted', worker)
-                    print('orig', self.workers[original_index])
+                    print(worker)
                     found = False  # Флаг для отслеживания, найден ли подходящий интервал
 
                     # Если список пустой, или можем впихнуть задачу в начало
@@ -90,6 +90,7 @@ class Product(Agent):
                         t_old = 0
                         t_new = self.time
                         worker['inters'] = [(t_old, t_new)] + worker['inters']
+                        real_inter =
                         self.workers[original_index]['inters'] = worker['inters']  # обновляем оригинальный список
                         best = worker
                         print(0, best)
@@ -100,7 +101,7 @@ class Product(Agent):
                         # если в начало нельзя - смотрим между интервалами, например - (3-4)
                         print(1)
                         for i in range(len(worker['inters']) - 1):
-                            print(worker['inters'][i + 1][0] - worker['inters'][i][1], self.time)
+                            print(f"время между интервалами {worker['inters'][i + 1][0] - worker['inters'][i][1]} время сборки {self.time}")
                             if worker['inters'][i + 1][0] - worker['inters'][i][1] >= self.time and worker['inters'][i][1] > self.wait:
                                 t_old = worker['inters'][i][1]
                                 t_new = t_old + self.time
@@ -112,12 +113,19 @@ class Product(Agent):
                                 found = True  # Установим флаг в True
                                 break
                         else:
+                            print(2)
                             # full_busy - сколько часов работает рабочий в целом
                             # Если не нашли промежутков в интервалах, куда можно впихнуть работу - смотрим
                             # хватает ли у рабочего "рабочего времени", чтобы впихнуть работу в конец, например - (10-11)
                             if sum(b - a for a, b in worker['inters']) + self.time <= worker['busy']:
                                 #t_old = worker['inters'][-1][1]
-                                t_old = self.wait
+
+                                # жесткий костыль, вообще это должно быть в другом месте
+                                if worker['inters']:
+                                    t_old = max(self.wait, worker['inters'][-1][1])
+                                else:
+                                    t_old = self.wait
+
                                 t_new = t_old + self.time
                                 worker['inters'].append((t_old, t_new))
                                 self.workers[original_index]['inters'] = worker[
@@ -141,6 +149,7 @@ class Product(Agent):
                 print(f'{name} Начал собирать продукт {self.name} для клиента {client_name}. Счет {score}. Время {full_time - busy_old}:{full_time - busy_new}')
                 self.send_to_manager_accepted(name, client_name, str(score), str(busy_old), str(busy_new), str(full_time), str(wait_time))
                 self.count = 0
+                self.wait = 0
 
 
     # Отправляет запрос всем агентам-частям, чтобы найти те, которое соответсвуют частям продукта
